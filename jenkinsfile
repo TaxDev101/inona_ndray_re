@@ -1,10 +1,10 @@
 pipeline {
     agent any
 
-    environment {
-        NODEJS_HOME = tool name: 'NodeJs', type: 'NodeJSInstallation'
-        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
-    }
+     tools {
+        nodejs 'NodeJs'
+        git 'git'
+}
 
     stages {
         stage('Checkout') {
