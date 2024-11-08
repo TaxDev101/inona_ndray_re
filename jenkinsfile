@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'monapp:latest'  // Nom de l'image Docker
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Cloner le dépôt depuis GitHub
+                git 'https://github.com/tonrepo/tonprojet.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                // Installer les dépendances
+                sh 'npm install'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Exécuter les tests avec Jest
+                sh 'npm test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                // Construire l'image Docker
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Stopper et supprimer le conteneur existant, s'il existe
+                sh 'docker stop monapp || true && docker rm monapp || true'
+                // Lancer un nouveau conteneur avec l'image créée
+                sh 'docker run -d -p 80:80 --name monapp $DOCKER_IMAGE'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline terminé.'
+        }
+    }
+}
